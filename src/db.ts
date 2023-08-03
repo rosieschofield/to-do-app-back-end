@@ -1,7 +1,7 @@
 export interface DbItem {
-  description: string,
-  creationDate: string,
-  dueDate: string
+  description: string;
+  creationDate: string;
+  dueDate: string;
 }
 
 export interface DbItemWithId extends DbItem {
@@ -25,7 +25,7 @@ export const addDummyDbItems = (n: number): DbItemWithId[] => {
     const todoTemplate = addDbItem({
       description: "describe item",
       creationDate: "date created",
-      dueDate: "date due"
+      dueDate: "date due",
     });
     todoTemplates.push(todoTemplate);
   }
