@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import {
-  addDummyDbItems,
+  //addDummyDbItems,
   //addDbItem,
   //getAllDbItems,
   //getDbItemById,
@@ -12,7 +12,7 @@ import {
 //import filePath from "./filePath";
 import { client } from "./queries";
 
-addDummyDbItems(10);
+//addDummyDbItems(10);
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(cors());
 // read in contents of any environment variables in the .env file
 dotenv.config();
 // use the environment variable PORT, or 4000 as a fallback
-const PORT_NUMBER = process.env.PORT ?? 4000;
+//const PORT_NUMBER = process.env.PORT ?? 4000;
 
 // API info page
 /*app.get("/", (req, res) => {
@@ -35,6 +35,7 @@ const PORT_NUMBER = process.env.PORT ?? 4000;
 
 // GET /items
 app.get("/todos", async (req, res) => {
+  await client.connect();
   try {
     const getAllToDos = await client.query("SELECT * FROM todoList");
     //const allToDoItems = getAllDbItems();
@@ -42,10 +43,12 @@ app.get("/todos", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+  await client.end();
 });
 
 // POST /items
 app.post<{}, {}, DbItem>("/todos", async (req, res) => {
+  await client.connect();
   try {
     const inputToDo = req.body;
     const newToDo = await client.query(
@@ -57,10 +60,12 @@ app.post<{}, {}, DbItem>("/todos", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+  await client.end();
 });
 
 // GET /items/:id
 app.get<{ id: string }>("/todos/:id", async (req, res) => {
+  await client.connect();
   try {
     const getThisToDo = await client.query(
       "SELECT * FROM todoList WHERE todo_id = $1",
@@ -73,10 +78,12 @@ app.get<{ id: string }>("/todos/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+  await client.end();
 });
 
 // DELETE /items/:id
 app.delete<{ id: string }>("/todos/:id", async (req, res) => {
+  await client.connect();
   try {
     const deleteThisToDo = await client.query(
       "DELETE * FROM todoList WHERE todo_id = $1 RETURNING *",
@@ -89,10 +96,12 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+  await client.end();
 });
 
 // PATCH /items/:id
 app.put<{ id: string }, {}, Partial<DbItem>>("/todos/:id", async (req, res) => {
+  await client.connect();
   try {
     const editedToDoBody = req.body;
     const editThisToDo = await client.query(
@@ -110,8 +119,10 @@ app.put<{ id: string }, {}, Partial<DbItem>>("/todos/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+  await client.end();
 });
 
-app.listen(PORT_NUMBER, () => {
+/*app.listen(PORT_NUMBER, () => {
   console.log(`Server is listening on port ${PORT_NUMBER}!`);
 });
+*/

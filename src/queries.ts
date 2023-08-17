@@ -16,6 +16,7 @@ export const client = new Client({
 });
 
 //await client.connect();
+//await client.end();
 //do stuff
 //await client.end();
 
