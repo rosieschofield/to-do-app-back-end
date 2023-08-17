@@ -40,7 +40,7 @@ app.get("/todos", async (req, res) => {
     const getAllToDos = await client.query("SELECT * FROM todolist");
     //const allToDoItems = getAllDbItems();
     res.status(200).json(getAllToDos.rows);
-    console.log(getAllToDos.rows)
+    console.log(getAllToDos.rows);
   } catch (err) {
     console.error(err);
   }
