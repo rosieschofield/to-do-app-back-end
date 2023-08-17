@@ -76,7 +76,7 @@ app.get<{ id: string }>("/todos/:id", async (req, res) => {
 });
 
 // DELETE /items/:id
-app.delete<{ id: string }>("/items/:id", async (req, res) => {
+app.delete<{ id: string }>("/todos/:id", async (req, res) => {
   try {
     const deleteThisToDo = await client.query(
       "DELETE * FROM todoList WHERE todo_id = $1 RETURNING *",
