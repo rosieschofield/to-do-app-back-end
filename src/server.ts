@@ -3,16 +3,15 @@ import cors from "cors";
 import dotenv from "dotenv";
 import {
   addDummyDbItems,
-  addDbItem,
-  getAllDbItems,
-  getDbItemById,
+  //addDbItem,
+  //getAllDbItems,
+  //getDbItemById,
   DbItem,
-  updateDbItemById,
+  //updateDbItemById,
 } from "./db";
-import filePath from "./filePath";
+//import filePath from "./filePath";
+import { client } from "./queries";
 
-// loading in some dummy items into the database
-// (comment out if desired, or change the number)
 addDummyDbItems(10);
 
 const app = express();
@@ -21,61 +20,95 @@ const app = express();
 app.use(express.json());
 /** To allow 'Cross-Origin Resource Sharing': https://en.wikipedia.org/wiki/Cross-origin_resource_sharing */
 app.use(cors());
-
 // read in contents of any environment variables in the .env file
 dotenv.config();
-
 // use the environment variable PORT, or 4000 as a fallback
 const PORT_NUMBER = process.env.PORT ?? 4000;
 
 // API info page
-app.get("/", (req, res) => {
+/*app.get("/", (req, res) => {
+  try{}
+  catch (err){console.error(err.message)}
   const pathToFile = filePath("../public/index.html");
   res.sendFile(pathToFile);
-});
+});*/
 
 // GET /items
-app.get("/items", (req, res) => {
-  const allToDoItems = getAllDbItems();
-  res.status(200).json(allToDoItems);
+app.get("/todos", async (req, res) => {
+  try {
+    const getAllToDos = await client.query("SELECT * FROM todoList");
+    //const allToDoItems = getAllDbItems();
+    res.status(200).json(getAllToDos.rows);
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 // POST /items
-app.post<{}, {}, DbItem>("/items", (req, res) => {
-  // to be rigorous, ought to handle non-conforming request bodies
-  // ... but omitting this as a simplification
-  const postData = req.body;
-  const createdToDoItem = addDbItem(postData);
-  res.status(201).json(createdToDoItem);
+app.post<{}, {}, DbItem>("/todos", async (req, res) => {
+  try {
+    const inputToDo = req.body;
+    const newToDo = await client.query(
+      "INSERT INTO todoList (description, creation_date, due_date) VALUES ($1, $2, $3) RETURNING *",
+      [inputToDo.description, inputToDo.creationDate, inputToDo.dueDate]
+    );
+    //const createdToDoItem = addDbItem(newToDo);
+    res.status(201).json(newToDo.rows);
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 // GET /items/:id
-app.get<{ id: string }>("/items/:id", (req, res) => {
-  const matchingToDoItem = getDbItemById(parseInt(req.params.id));
-  if (matchingToDoItem === "not found") {
-    res.status(404).json(matchingToDoItem);
-  } else {
-    res.status(200).json(matchingToDoItem);
+app.get<{ id: string }>("/todos/:id", async (req, res) => {
+  try {
+    const getThisToDo = await client.query(
+      "SELECT * FROM todoList WHERE todo_id = $1",
+      [req.params.id]
+    );
+    //const matchingToDoItem = getDbItemById(parseInt(req.params.id));
+    if (getThisToDo.rows.length > 0) {
+      res.status(200).json(getThisToDo.rows);
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 
 // DELETE /items/:id
-app.delete<{ id: string }>("/items/:id", (req, res) => {
-  const matchingToDoItem = getDbItemById(parseInt(req.params.id));
-  if (matchingToDoItem === "not found") {
-    res.status(404).json(matchingToDoItem);
-  } else {
-    res.status(200).json(matchingToDoItem);
+app.delete<{ id: string }>("/items/:id", async (req, res) => {
+  try {
+    const deleteThisToDo = await client.query(
+      "DELETE * FROM todoList WHERE todo_id = $1 RETURNING *",
+      [req.params.id]
+    );
+    //const matchingToDoItem = getDbItemById(parseInt(req.params.id));
+    if (deleteThisToDo.rows.length > 0) {
+      res.status(200).json(deleteThisToDo.rows);
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 
 // PATCH /items/:id
-app.patch<{ id: string }, {}, Partial<DbItem>>("/items/:id", (req, res) => {
-  const matchingToDoItem = updateDbItemById(parseInt(req.params.id), req.body);
-  if (matchingToDoItem === "not found") {
-    res.status(404).json(matchingToDoItem);
-  } else {
-    res.status(200).json(matchingToDoItem);
+app.put<{ id: string }, {}, Partial<DbItem>>("/todos/:id", async (req, res) => {
+  try {
+    const editedToDoBody = req.body;
+    const editThisToDo = await client.query(
+      "UPDATE todoList SET description = $1, creation_date = $2, due_date = $3 WHERE todo_id = $4 RETURNING *",
+      [
+        editedToDoBody.description,
+        editedToDoBody.creationDate,
+        editedToDoBody.dueDate,
+        req.params.id,
+      ]
+    );
+    if (editThisToDo.rows.length > 0) {
+      res.status(200).json(editThisToDo.rows);
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 
