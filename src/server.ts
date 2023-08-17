@@ -37,7 +37,7 @@ dotenv.config();
 app.get("/todos", async (req, res) => {
   await client.connect();
   try {
-    const getAllToDos = await client.query("SELECT * FROM todoList");
+    const getAllToDos = await client.query("SELECT * FROM todolist");
     //const allToDoItems = getAllDbItems();
     res.status(200).json(getAllToDos.rows);
   } catch (err) {
@@ -52,7 +52,7 @@ app.post<{}, {}, DbItem>("/todos", async (req, res) => {
   try {
     const inputToDo = req.body;
     const newToDo = await client.query(
-      "INSERT INTO todoList (description, creation_date, due_date) VALUES ($1, $2, $3) RETURNING *",
+      "INSERT INTO todolist (description, creation_date, due_date) VALUES ($1, $2, $3) RETURNING *",
       [inputToDo.description, inputToDo.creationDate, inputToDo.dueDate]
     );
     //const createdToDoItem = addDbItem(newToDo);
@@ -68,7 +68,7 @@ app.get<{ id: string }>("/todos/:id", async (req, res) => {
   await client.connect();
   try {
     const getThisToDo = await client.query(
-      "SELECT * FROM todoList WHERE todo_id = $1",
+      "SELECT * FROM todolist WHERE todo_id = $1",
       [req.params.id]
     );
     //const matchingToDoItem = getDbItemById(parseInt(req.params.id));
@@ -86,7 +86,7 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
   await client.connect();
   try {
     const deleteThisToDo = await client.query(
-      "DELETE * FROM todoList WHERE todo_id = $1 RETURNING *",
+      "DELETE * FROM todolist WHERE todo_id = $1 RETURNING *",
       [req.params.id]
     );
     //const matchingToDoItem = getDbItemById(parseInt(req.params.id));
@@ -105,7 +105,7 @@ app.put<{ id: string }, {}, Partial<DbItem>>("/todos/:id", async (req, res) => {
   try {
     const editedToDoBody = req.body;
     const editThisToDo = await client.query(
-      "UPDATE todoList SET description = $1, creation_date = $2, due_date = $3 WHERE todo_id = $4 RETURNING *",
+      "UPDATE todolist SET description = $1, creation_date = $2, due_date = $3 WHERE todo_id = $4 RETURNING *",
       [
         editedToDoBody.description,
         editedToDoBody.creationDate,
