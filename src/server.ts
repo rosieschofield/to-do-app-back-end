@@ -9,7 +9,7 @@ import {
   DbItem,
   //updateDbItemById,
 } from "./db";
-//import filePath from "./filePath";
+import filePath from "./filePath";
 import { client } from "./queries";
 
 //addDummyDbItems(10);
@@ -26,12 +26,14 @@ dotenv.config();
 const PORT_NUMBER = process.env.PORT ?? 4000;
 
 // API info page
-/*app.get("/", (req, res) => {
-  try{}
-  catch (err){console.error(err.message)}
-  const pathToFile = filePath("../public/index.html");
-  res.sendFile(pathToFile);
-});*/
+app.get("/", (req, res) => {
+  try {
+    const pathToFile = filePath("../public/index.html");
+    res.sendFile(pathToFile);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 // GET /items
 app.get("/todos", async (req, res) => {
