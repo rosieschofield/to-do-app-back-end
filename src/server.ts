@@ -11,7 +11,7 @@ import {
 } from "./db";
 import filePath from "./filePath";
 import { Client } from "pg";
-import { client } from "./queries";
+//import { client } from "./queries";
 
 //addDummyDbItems(10);
 
@@ -61,6 +61,12 @@ app.get("/todos", async (req, res) => {
 
 // POST /items
 app.post<{}, {}, DbItem>("/todos", async (req, res) => {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
   await client.connect();
   try {
     const inputToDo = req.body;
@@ -78,7 +84,13 @@ app.post<{}, {}, DbItem>("/todos", async (req, res) => {
 
 // GET /items/:id
 app.get<{ id: string }>("/todos/:id", async (req, res) => {
-  //await client.connect();
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  await client.connect();
   try {
     const getThisToDo = await client.query(
       "SELECT * FROM todolist WHERE todo_id = $1",
@@ -91,11 +103,17 @@ app.get<{ id: string }>("/todos/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-  //await client.end();
+  await client.end();
 });
 
 // DELETE /items/:id
 app.delete<{ id: string }>("/todos/:id", async (req, res) => {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
   await client.connect();
   try {
     const deleteThisToDo = await client.query(
@@ -114,6 +132,12 @@ app.delete<{ id: string }>("/todos/:id", async (req, res) => {
 
 // PATCH /items/:id
 app.put<{ id: string }, {}, Partial<DbItem>>("/todos/:id", async (req, res) => {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
   await client.connect();
   try {
     const editedToDoBody = req.body;
