@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+//import dotenv from "dotenv";
 import {
   //addDummyDbItems,
   //addDbItem,
@@ -21,7 +21,7 @@ app.use(express.json());
 /** To allow 'Cross-Origin Resource Sharing': https://en.wikipedia.org/wiki/Cross-origin_resource_sharing */
 app.use(cors());
 // read in contents of any environment variables in the .env file
-dotenv.config();
+//dotenv.config();
 // use the environment variable PORT, or 4000 as a fallback
 const PORT_NUMBER = process.env.PORT ?? 4000;
 
@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 
 // GET /items
 app.get("/todos", async (req, res) => {
-  await client.connect();
+  //await client.connect();
   try {
     const getAllToDos = await client.query("SELECT * FROM todolist");
     //const allToDoItems = getAllDbItems();
@@ -46,7 +46,7 @@ app.get("/todos", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-  await client.end();
+  //await client.end();
 });
 
 // POST /items
@@ -68,7 +68,7 @@ app.post<{}, {}, DbItem>("/todos", async (req, res) => {
 
 // GET /items/:id
 app.get<{ id: string }>("/todos/:id", async (req, res) => {
-  await client.connect();
+  //await client.connect();
   try {
     const getThisToDo = await client.query(
       "SELECT * FROM todolist WHERE todo_id = $1",
@@ -81,7 +81,7 @@ app.get<{ id: string }>("/todos/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-  await client.end();
+  //await client.end();
 });
 
 // DELETE /items/:id
