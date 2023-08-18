@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-//import dotenv from "dotenv";
+import dotenv from "dotenv";
 import {
   //addDummyDbItems,
   //addDbItem,
@@ -10,6 +10,7 @@ import {
   //updateDbItemById,
 } from "./db";
 import filePath from "./filePath";
+import { Client } from "pg";
 import { client } from "./queries";
 
 //addDummyDbItems(10);
@@ -21,9 +22,12 @@ app.use(express.json());
 /** To allow 'Cross-Origin Resource Sharing': https://en.wikipedia.org/wiki/Cross-origin_resource_sharing */
 app.use(cors());
 // read in contents of any environment variables in the .env file
-//dotenv.config();
+dotenv.config();
 // use the environment variable PORT, or 4000 as a fallback
 const PORT_NUMBER = process.env.PORT ?? 4000;
+if (!process.env.DATABASE_URL) {
+  throw "No DATABASE_URL env var!  Have you made a .env file?  And set up dotenv?";
+}
 
 // API info page
 app.get("/", (req, res) => {
@@ -37,7 +41,13 @@ app.get("/", (req, res) => {
 
 // GET /items
 app.get("/todos", async (req, res) => {
-  //await client.connect();
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  await client.connect();
   try {
     const getAllToDos = await client.query("SELECT * FROM todolist");
     //const allToDoItems = getAllDbItems();
@@ -46,7 +56,7 @@ app.get("/todos", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-  //await client.end();
+  await client.end();
 });
 
 // POST /items
